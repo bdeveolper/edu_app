@@ -1,0 +1,13 @@
+{
+  "description": "An education platform for instructors to manage courses and track student progress, while learners access lessons, take exams, monitor progress, and manage payments.",
+  "robots": {
+    "index": false
+  },
+  "icons": {
+    "icon": "/b-developer-logo.jpeg"
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
