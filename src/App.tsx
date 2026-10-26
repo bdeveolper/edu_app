@@ -86,12 +86,6 @@ function DeviceAuthFlow({ onDone }: { onDone: (isInstructor: boolean) => void })
     onDone(stage === 'login' && email.trim().toLowerCase() === 'instructor@bdev.com')
   }
 
-  const fillCredentials = (role: 'instructor' | 'student') => {
-    setEmail(`${role}@bdev.com`)
-    setPassword('Password123!')
-    setError('')
-  }
-
   return <div className="auth-screen auth-form">
     {stage === 'register' && <button className="icon-btn" onClick={() => { setStage('login'); setError('') }} aria-label="العودة لتسجيل الدخول"><Icon name="back" /></button>}
     <div className="login-brand"><Brand/><b>EDU-APP</b></div>
@@ -106,13 +100,6 @@ function DeviceAuthFlow({ onDone }: { onDone: (isInstructor: boolean) => void })
       {stage === 'login' && <button className="forgot" type="button" onClick={() => setError('تم إرسال رابط استعادة كلمة المرور إلى بيانات التواصل المسجلة.')}>نسيت كلمة المرور؟</button>}
       <Button type="submit">{stage === 'login' ? 'تسجيل الدخول' : 'إنشاء الحساب'}</Button>
     </form>
-    {stage === 'login' && <section className="demo-credentials" aria-label="بيانات الحسابات التجريبية">
-      <div><b>حسابات تجريبية</b><span>استخدم بيانات الاختبار للدخول بسرعة</span></div>
-      <button type="button" onClick={() => fillCredentials('instructor')}>Login as Instructor</button>
-      <button type="button" onClick={() => fillCredentials('student')}>Login as Student</button>
-      <small>instructor@bdev.com · Password123!</small>
-      <small>student@bdev.com · Password123!</small>
-    </section>}
     <button className="auth-link auth-bottom" onClick={() => { setStage(stage === 'login' ? 'register' : 'login'); setError('') }}>{stage === 'login' ? <>مستخدم جديد؟ <b>إنشاء حساب</b></> : <>لديك حساب؟ <b>تسجيل الدخول</b></>}</button>
   </div>
 }

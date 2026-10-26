@@ -67,12 +67,6 @@ main{width:100%;max-width:680px;margin:auto;padding:calc(60px + env(safe-area-in
 .device-screen .auth-screen.auth-form{justify-content:center;padding-top:16px;padding-bottom:24px}
 .device-screen .auth-form form{margin-top:14px}
 .device-screen .auth-form .field{margin-bottom:12px}
-.demo-credentials{display:grid;grid-template-columns:1fr 1fr;gap:7px 9px;margin-top:18px;padding:13px;border:1px solid #dce7f7;border-radius:16px;background:#f2f7ff}
-.demo-credentials>div{grid-column:1/-1;display:flex;flex-direction:column;gap:2px}
-.demo-credentials>div b{color:var(--navy);font-size:13px}
-.demo-credentials>div span,.demo-credentials small{color:var(--muted);font-size:9px}
-.demo-credentials button{min-height:37px;border:1px solid #cddcf4;border-radius:10px;background:white;color:var(--navy);font-size:10px;font-weight:700}
-.demo-credentials small{grid-column:1/-1;direction:ltr;text-align:center}
 .device-screen .auth-link.auth-bottom{margin-top:10px}
 .device-screen .desktop-rail{display:none}
 .device-screen .toast{position:sticky;bottom:10px;align-self:center}
