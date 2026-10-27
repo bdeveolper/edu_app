@@ -59,6 +59,21 @@ function AuthFlow({ onDone }: { onDone: () => void }) {
   return <div className="auth-screen auth-form">{stage==='register'&&<button className="icon-btn" onClick={()=>{setStage('login');setError('')}} aria-label="العودة لتسجيل الدخول"><Icon name="back"/></button>}<div className="login-brand"><Brand/><b>منصة د/ خالد أحمد</b></div><h1>{stage==='login'?'تسجيل الدخول':'إنشاء حساب جديد'}</h1><p>{stage==='login'?'أدخل بيانات حسابك للمتابعة إلى منصتك التعليمية':'أنشئ حسابك وابدأ رحلة التعلّم'}</p><form onSubmit={submit}>{stage==='register'&&<Field label="الاسم بالكامل" placeholder="أدخل اسمك"/>}<label className="field"><span>البريد الإلكتروني أو رقم الهاتف</span><input name="account" type="text" inputMode="email" placeholder="name@example.com أو 01xxxxxxxxx"/></label><label className="field password-field"><span>كلمة المرور</span><input name="password" type={showPassword?'text':'password'} placeholder="أدخل كلمة المرور"/><button type="button" onClick={()=>setShowPassword(!showPassword)} aria-label={showPassword?'إخفاء كلمة المرور':'إظهار كلمة المرور'}><Icon name={showPassword?'eyeOff':'eye'} size={20}/></button></label>{stage==='register'&&<label className={`field password-field ${error.includes('متطابقتين')?'invalid':''}`}><span>تأكيد كلمة المرور</span><input name="confirmPassword" type={showConfirm?'text':'password'} placeholder="أعد إدخال كلمة المرور"/><button type="button" onClick={()=>setShowConfirm(!showConfirm)} aria-label={showConfirm?'إخفاء تأكيد كلمة المرور':'إظهار تأكيد كلمة المرور'}><Icon name={showConfirm?'eyeOff':'eye'} size={20}/></button></label>}{error&&<div className="form-error">{error}</div>}{stage==='login'&&<button className="forgot" type="button" onClick={()=>setError('تم إرسال رابط استعادة كلمة المرور إلى بيانات التواصل المسجلة.')}>نسيت كلمة المرور؟</button>}<Button type="submit">{stage==='login'?'تسجيل الدخول':'إنشاء الحساب'}</Button></form><button className="auth-link auth-bottom" onClick={()=>{setStage(stage==='login'?'register':'login');setError('')}}>{stage==='login'?<>مستخدم جديد؟ <b>إنشاء حساب</b></>:<>لديك حساب؟ <b>تسجيل الدخول</b></>}</button></div>
 }
 
+type AccountRole = 'student' | 'instructor'
+
+type Account = {
+  email: string
+  password: string
+  role: AccountRole
+  name: string
+}
+
+const STATIC_ACCOUNTS: Account[] = [
+  { email: 'instructor@bdev.com', password: 'instructor123', role: 'instructor', name: 'د/ خالد أحمد' },
+  { email: 'student@bdev.com', password: 'student123', role: 'student', name: 'طالب نموذج' },
+  { email: 'admin@bdev.com', password: 'admin123', role: 'instructor', name: 'إدارة المنصة' },
+]
+
 function DeviceAuthFlow({ onDone }: { onDone: (isInstructor: boolean) => void }) {
   const [stage, setStage] = useState<'splash' | 'login' | 'register'>('splash')
   const [email, setEmail] = useState('')
@@ -74,16 +89,39 @@ function DeviceAuthFlow({ onDone }: { onDone: (isInstructor: boolean) => void })
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (email.trim().length < 5 || password.length < 6) {
+    const normalizedEmail = email.trim().toLowerCase()
+
+    if (normalizedEmail.length < 5 || password.length < 6) {
       setError('أدخل بريدًا إلكترونيًا أو رقم هاتف صحيحًا وكلمة مرور من 6 أحرف على الأقل.')
       return
     }
+
     if (stage === 'register' && password !== confirmPassword) {
       setError('كلمتا المرور غير متطابقتين.')
       return
     }
+
+    if (stage === 'register') {
+      const existingAccount = STATIC_ACCOUNTS.find((account) => account.email === normalizedEmail)
+      if (existingAccount) {
+        setError('هذا البريد مستخدم بالفعل. جرّب تسجيل الدخول أو استخدم بريدًا مختلفًا.')
+        return
+      }
+
+      STATIC_ACCOUNTS.push({ email: normalizedEmail, password, role: 'student', name: 'طالب جديد' })
+      setError('')
+      onDone(false)
+      return
+    }
+
+    const matchedAccount = STATIC_ACCOUNTS.find((account) => account.email === normalizedEmail && account.password === password)
+    if (!matchedAccount) {
+      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة. استخدم إحدى الحسابات المعروفة في التطبيق.')
+      return
+    }
+
     setError('')
-    onDone(stage === 'login' && email.trim().toLowerCase() === 'instructor@bdev.com')
+    onDone(matchedAccount.role === 'instructor')
   }
 
   return <div className="auth-screen auth-form">
@@ -266,10 +304,10 @@ const studentNav: { id: Screen; label: string; icon: string }[] = [{id:'home',la
 const adminNav: { id: Screen; label: string; icon: string }[] = [{id:'admin',label:'الرئيسية',icon:'home'},{id:'content',label:'المحتوى',icon:'courses'},{id:'students',label:'الطلاب',icon:'users'},{id:'structure',label:'الهيكل',icon:'grid'},{id:'profile',label:'حسابي',icon:'user'}]
 
 function DeviceFrame({ mode, onModeChange, children }: { mode: 'mobile' | 'tablet'; onModeChange: (mode: 'mobile' | 'tablet') => void; children: React.ReactNode }) {
-  return <div className="device-demo">
+  return <div className={`device-demo ${mode}`}>
     <div className="device-controls" role="group" aria-label="اختيار إطار الجهاز">
-      <button className={mode === 'mobile' ? 'active' : ''} onClick={() => onModeChange('mobile')}>Mobile View <span>iPhone 15 Pro</span></button>
-      <button className={mode === 'tablet' ? 'active' : ''} onClick={() => onModeChange('tablet')}>Tablet View <span>iPad Mini</span></button>
+      <button className={mode === 'mobile' ? 'active' : ''} onClick={() => onModeChange('mobile')} aria-label="عرض الهاتف" title="عرض الهاتف">هاتف<span>Mobile</span></button>
+      <button className={mode === 'tablet' ? 'active' : ''} onClick={() => onModeChange('tablet')} aria-label="عرض التابلت" title="عرض التابلت">تابلت<span>Tablet</span></button>
     </div>
     <div className={`device-frame ${mode}`}>
       <div className="device-screen">
